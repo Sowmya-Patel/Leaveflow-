@@ -16,7 +16,7 @@ ibmproj/
 ## Services
 
 | Service | Description | Port |
-|---|---|---|
+
 | `auth-service` | Handles user registration, login, and JWT-based authentication | 5000 |
 | `leave-service` | Manages leave requests, approvals, and employee/admin dashboards | 7000 |
 | `frontend` | HTML/CSS/JS frontend served by Nginx | 8080 |

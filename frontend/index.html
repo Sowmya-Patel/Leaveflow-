@@ -912,16 +912,19 @@
         async function loadEmployees() {
             try {
                 const empRes = await fetch("http://localhost:5000/employees", {
-                    headers: { "Authorization": `Bearer ${token}` }
+                    headers: { "Authorization": `Bearer ${token}` },
+                    cache: "no-store"
                 });
                 const leaveRes = await fetch("http://localhost:7000/on-leave", {
-                    headers: { "Authorization": `Bearer ${token}` }
+                    headers: { "Authorization": `Bearer ${token}` },
+                    cache: "no-store"
                 });
 
                 if (!empRes.ok || !leaveRes.ok) return;
 
                 const employees = await empRes.json();
                 const onLeaveIds = await leaveRes.json();
+                const onLeaveSet = new Set(onLeaveIds.map(id => Number(id)));
                 const container = document.getElementById("employeeList");
 
                 if (employees.length === 0) {
@@ -931,7 +934,7 @@
 
                 container.innerHTML = "";
                 employees.forEach(emp => {
-                    const isOnLeave = onLeaveIds.includes(emp.id);
+                    const isOnLeave = onLeaveSet.has(Number(emp.id));
                     const statusBadge = isOnLeave
                         ? '<span class="badge badge-declined">On Leave</span>'
                         : '<span class="badge badge-approved">Active</span>';
@@ -964,7 +967,8 @@
             let employeesList = [];
             try {
                 const empRes = await fetch("http://localhost:5000/employees", {
-                    headers: { "Authorization": `Bearer ${token}` }
+                    headers: { "Authorization": `Bearer ${token}` },
+                    cache: "no-store"
                 });
                 if (empRes.ok) {
                     employeesList = await empRes.json();
@@ -975,11 +979,13 @@
             }
 
             const res = await fetch("http://localhost:7000/leaves", {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { "Authorization": `Bearer ${token}` },
+                cache: "no-store"
             });
 
             const onLeaveRes = await fetch("http://localhost:7000/on-leave", {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { "Authorization": `Bearer ${token}` },
+                cache: "no-store"
             });
 
             const leaves = await res.json();
@@ -1039,26 +1045,36 @@
                     approveBtn.className = "approve-btn";
                     approveBtn.innerText = "Approve";
                     approveBtn.onclick = async () => {
-                        await fetch(`http://localhost:7000/approve/${l.id}`, {
+                        const response = await fetch(`http://localhost:7000/approve/${l.id}`, {
                             method: "POST",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            showToast(result.message || "Failed to approve leave", "error");
+                            return;
+                        }
                         showToast(`Leave approved for ${l.employeeName}`);
-                        loadLeaves();
-                        loadEmployees();
+                        await loadLeaves();
+                        await loadEmployees();
                     };
 
                     const declineBtn = document.createElement("button");
                     declineBtn.className = "decline-btn";
                     declineBtn.innerText = "Decline";
                     declineBtn.onclick = async () => {
-                        await fetch(`http://localhost:7000/decline/${l.id}`, {
+                        const response = await fetch(`http://localhost:7000/decline/${l.id}`, {
                             method: "POST",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            showToast(result.message || "Failed to decline leave", "error");
+                            return;
+                        }
                         showToast(`Leave declined for ${l.employeeName}`, "error");
-                        loadLeaves();
-                        loadEmployees();
+                        await loadLeaves();
+                        await loadEmployees();
                     };
 
                     actionsDiv.appendChild(approveBtn);

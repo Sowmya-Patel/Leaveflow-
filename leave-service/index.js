@@ -62,9 +62,27 @@ async function sendEmailNotification(to, subject, text) {
 // ----------------------------------------------
 
 const SECRET = "secretkey";
+const APP_TIMEZONE = process.env.APP_TIMEZONE || "Asia/Kolkata";
 
 let leaves = [];
 let leaveBalances = {};
+
+function toDateOnly(value) {
+    return String(value || "").slice(0, 10);
+}
+
+function getTodayInAppTimezone() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: APP_TIMEZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).formatToParts(new Date());
+    const year = parts.find(p => p.type === "year")?.value;
+    const month = parts.find(p => p.type === "month")?.value;
+    const day = parts.find(p => p.type === "day")?.value;
+    return `${year}-${month}-${day}`;
+}
 
 // JWT Middleware
 function verifyToken(req, res, next) {
@@ -91,7 +109,9 @@ function verifyToken(req, res, next) {
 // Apply Leave
 app.post("/apply", verifyToken, (req, res) => {
 
-    const { type, startDate, endDate, reason, halfDay } = req.body;
+    const { type, reason, halfDay } = req.body;
+    const startDate = toDateOnly(req.body.startDate);
+    const endDate = toDateOnly(req.body.endDate);
 
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -252,7 +272,7 @@ app.get("/all", verifyToken, (req, res) => {
 });
 // Auto-End Expired Leaves Background Job
 setInterval(() => {
-    const todayStr = new Date().toLocaleString('sv').split(' ')[0]; // YYYY-MM-DD in local time
+    const todayStr = getTodayInAppTimezone();
 
     let updatedCount = 0;
     leaves.forEach(l => {
@@ -274,12 +294,14 @@ app.get("/on-leave", verifyToken, (req, res) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Access denied" });
     }
-    const todayStr = new Date().toLocaleString('sv').split(' ')[0]; // YYYY-MM-DD in local time
+    const todayStr = getTodayInAppTimezone();
 
     const onLeaveUserIds = [...new Set(leaves
         .filter(l => l.status === "approved")
         .filter(l => {
-            return todayStr >= l.startDate && todayStr <= l.endDate;
+            const leaveStart = toDateOnly(l.startDate);
+            const leaveEnd = toDateOnly(l.endDate);
+            return todayStr >= leaveStart && todayStr <= leaveEnd;
         })
         .map(l => l.userId)
     )];
