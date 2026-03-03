@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #8b5cf6;
+            --bg-body: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --nav-bg: #1e1b4b;
+            --border: rgba(226, 232, 240, 0.8);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            --glass-blur: 12px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --bg-body: #020617;
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --nav-bg: #020617;
+            --border: rgba(51, 65, 85, 0.5);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        body.bg-login {
+            background-image: linear-gradient(rgba(30, 27, 75, 0.6), rgba(30, 27, 75, 0.6)), url('login-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .navbar {
+            background: var(--nav-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 8px 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 1.25rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            margin: 0.5rem 0 1.25rem 0;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-size: 0.925rem;
+            font-family: inherit;
+        }
+
+        [data-theme="dark"] input,
+        [data-theme="dark"] select {
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        button {
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 100%;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .badge-declined {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .badge-completed {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+        }
+
+        .balance-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .balance-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .balance-number {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+            color: var(--primary);
+        }
+
+        .login-box {
+            max-width: 440px;
+            margin: 10vh auto;
+            border-top: 4px solid var(--primary);
+        }
+
+        /* TOAST NOTIFICATIONS */
+        #toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 280px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .duration-preview {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            background: rgba(99, 102, 241, 0.05);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .leave-item {
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .leave-item:last-child {
+            border-bottom: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .approve-btn {
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .approve-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .decline-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .decline-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .profile-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .profile-item label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .profile-item span {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-login">
+
+    <div id="toast-container"></div>
+
+    <div class="navbar">
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            LeaveFlow
+        </div>
+        <div class="nav-actions">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</button>
+            <button class="logout-btn hidden" onclick="logout()" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- LOGIN -->
+        <div id="loginSection" class="login-box card">
+            <h2>Login</h2>
+
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+
+            <select id="role">
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <button class="primary-btn" onclick="login()">Login</button>
+            <p style="margin-top: 10px; font-size: 14px; text-align: center;">New employee? <a href="#"
+                    onclick="toggleRegister(true)">Register here</a></p>
+            <p id="loginError" style="color:red;"></p>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="registerSection" class="login-box card hidden">
+            <h2>Employee Registration</h2>
+
+            <input type="text" id="regUsername" placeholder="Username">
+            <input type="password" id="regPassword" placeholder="Password">
+            <input type="text" id="regName" placeholder="Full Name">
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="text" id="regContact" placeholder="Contact Number">
+            <input type="text" id="regAddress" placeholder="Home Address">
+
+            <button class="primary-btn" onclick="register()">Register</button>
+            <p style="margin-top: 10px; font-size: 14px; text-align: center;">Already registered? <a href="#"
+                    onclick="toggleRegister(false)">Login here</a></p>
+            <p id="registerError" style="color:red;"></p>
+            <p id="registerSuccess" style="color:green;"></p>
+        </div>
+
+        <!-- EMPLOYEE DASHBOARD -->
+        <div id="employeeDashboard" class="hidden">
+            <h2 class="section-title">Employee Dashboard</h2>
+
+            <!-- PROFILE SECTION -->
+            <div class="card" id="profileSection">
+                <h3>My Profile</h3>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <label>Name</label>
+                        <span id="profName"></span>
+                    </div>
+                    <div class="profile-item">
+                        <label>Email</label>
+                        <span id="profEmail"></span>
+                    </div>
+                    <div class="profile-item">
+                        <label>Contact No</label>
+                        <span id="profContact"></span>
+                    </div>
+                    <div class="profile-item">
+                        <label>Address</label>
+                        <span id="profAddress"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="balanceSection"></div>
+
+            <div class="card">
+                <h3>Apply Leave</h3>
+                <select id="leaveType">
+                    <option value="casual">Casual Leave</option>
+                    <option value="sick">Sick Leave</option>
+                    <option value="paid">Paid Leave</option>
+                </select>
+
+                <input type="date" id="startDate" onchange="updateDurationPreview()">
+                <input type="date" id="endDate" onchange="updateDurationPreview()">
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <input type="checkbox" id="halfDay" style="width: auto; margin: 0;"
+                        onchange="updateDurationPreview()">
+                    <label for="halfDay" style="font-size: 14px;">Apply for Half Day</label>
+                </div>
+
+                <div id="durationPreview" class="duration-preview">Estimated Duration: 0 days (Excludes Weekends)</div>
+
+                <input type="text" id="reason" placeholder="Reason for Leave">
+
+                <button class="primary-btn" onclick="applyLeave()">Apply</button>
+            </div>
+
+            <div class="card">
+                <h3>My Leave History</h3>
+                <div id="myLeaveHistory"></div>
+            </div>
+
+            <div id="notification"></div>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="adminDashboard" class="hidden">
+            <h2 class="section-title">Admin Dashboard</h2>
+
+            <div id="adminStats" class="balance-container"></div>
+
+            <div class="card">
+                <h3>All Leave Requests</h3>
+                <div id="leaveList"></div>
+            </div>
+
+            <div class="card">
+                <h3>Employee List</h3>
+                <div id="employeeList"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let token = "";
+        let shownNotifications = new Set();
+        let leaveChartInstance = null; // Storing chart globally to enable replacing it
+
+        // Initialize Theme
+        function initTheme() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+        initTheme();
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute("data-theme");
+            const target = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", target);
+            localStorage.setItem("theme", target);
+            showToast(`Switched to ${target} mode`, "info");
+        }
+
+        function logout() {
+            token = "";
+            document.body.classList.add("bg-login");
+            showToast("Logged out successfully", "info");
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+
+            let icon = "🔔";
+            if (type === "success") icon = "✅";
+            if (type === "error") icon = "❌";
+            if (type === "info") icon = "ℹ️";
+
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateX(100%)";
+                toast.style.transition = "all 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function updateDurationPreview() {
+            const startStr = document.getElementById("startDate").value;
+            const endStr = document.getElementById("endDate").value;
+            const halfDay = document.getElementById("halfDay").checked;
+            const preview = document.getElementById("durationPreview");
+
+            if (halfDay) {
+                preview.innerText = "Estimated Duration: 0.5 days";
+                document.getElementById("endDate").disabled = true;
+                return;
+            }
+            document.getElementById("endDate").disabled = false;
+
+            if (!startStr || !endStr) {
+                preview.innerText = "Estimated Duration: 0 days (Excludes Weekends)";
+                return;
+            }
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+
+            let duration = 0;
+            let current = new Date(start);
+            while (current <= end) {
+                const day = current.getDay();
+                if (day !== 0 && day !== 6) duration++;
+                current.setDate(current.getDate() + 1);
+            }
+
+            preview.innerText = `Estimated Duration: ${duration} days (Excludes Weekends)`;
+        }
+
+
+
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const role = document.getElementById("role").value;
+
+            const res = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, role })
+            });
+
+            const data = await res.json();
+
+            if (data.token) {
+                token = data.token;
+                const payload = JSON.parse(atob(token.split('.')[1]));
+
+                // Set role for CSS targeting if needed
+                document.documentElement.setAttribute("data-role", payload.role);
+
+                // Remove background when logging in
+                document.body.classList.remove("bg-login");
+
+                document.getElementById("loginSection").classList.add("hidden");
+                document.getElementById("registerSection").classList.add("hidden");
+                document.getElementById("logoutBtn").classList.remove("hidden");
+                showToast(`Welcome back, ${payload.username}!`);
+
+                if (payload.role === "employee") {
+                    document.getElementById("employeeDashboard").classList.remove("hidden");
+                    loadProfile();
+                    loadBalance();
+                    loadMyLeaves();
+                    checkNotification();
+
+                    // Auto-refresh employee dashboard every 10 seconds
+                    setInterval(() => {
+                        loadBalance();
+                        loadMyLeaves();
+                        checkNotification();
+                    }, 10000);
+                } else if (payload.role === "admin") {
+                    document.getElementById("adminDashboard").classList.remove("hidden");
+                    loadLeaves();
+                    loadEmployees();
+
+                    // Auto-refresh admin dashboard every 10 seconds
+                    setInterval(() => {
+                        loadLeaves();
+                        loadEmployees();
+                    }, 10000);
+                }
+            } else {
+                showToast(data.message || "Invalid credentials", "error");
+            }
+        }
+
+        function toggleRegister(show) {
+            document.getElementById("loginError").innerText = "";
+            document.getElementById("registerError").innerText = "";
+            document.getElementById("registerSuccess").innerText = "";
+
+            if (show) {
+                document.getElementById("loginSection").classList.add("hidden");
+                document.getElementById("registerSection").classList.remove("hidden");
+            } else {
+                document.getElementById("registerSection").classList.add("hidden");
+                document.getElementById("loginSection").classList.remove("hidden");
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById("regUsername").value;
+            const password = document.getElementById("regPassword").value;
+            const name = document.getElementById("regName").value;
+            const email = document.getElementById("regEmail").value;
+            const contactNo = document.getElementById("regContact").value;
+            const address = document.getElementById("regAddress").value;
+
+            document.getElementById("registerError").innerText = "";
+            document.getElementById("registerSuccess").innerText = "";
+
+            if (!username || !password || !name) {
+                document.getElementById("registerError").innerText = "Username, password, and name are required.";
+                return;
+            }
+
+            try {
+                const res = await fetch("http://localhost:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, name, email, contactNo, address })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById("registerSuccess").innerText = "Registration successful! You may now login.";
+                    // Optionally autofill login fields
+                    document.getElementById("username").value = username;
+                    document.getElementById("password").value = password;
+                    document.getElementById("role").value = "employee";
+
+                    // Clear fields
+                    document.getElementById("regUsername").value = "";
+                    document.getElementById("regPassword").value = "";
+                    document.getElementById("regName").value = "";
+                    document.getElementById("regEmail").value = "";
+                    document.getElementById("regContact").value = "";
+                    document.getElementById("regAddress").value = "";
+                } else {
+                    document.getElementById("registerError").innerText = data.message || "Error registering.";
+                }
+            } catch (err) {
+                document.getElementById("registerError").innerText = "Server error during registration.";
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch("http://localhost:5000/profile", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const profile = await res.json();
+                    document.getElementById("profName").innerText = profile.name || "N/A";
+                    document.getElementById("profEmail").innerText = profile.email || "N/A";
+                    document.getElementById("profContact").innerText = profile.contactNo || "N/A";
+                    document.getElementById("profAddress").innerText = profile.address || "N/A";
+                }
+            } catch (err) {
+                console.error("Error loading profile:", err);
+            }
+        }
+
+        async function loadBalance() {
+            const res = await fetch("http://localhost:7000/balance", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const balance = await res.json();
+
+            const container = document.getElementById("balanceSection");
+
+            container.innerHTML = `
+        <div class="balance-container">
+            <div class="balance-card">
+                Casual Leaves Left
+                <div class="balance-number">${balance.casual}</div>
+            </div>
+            <div class="balance-card">
+                Sick Leaves Left
+                <div class="balance-number">${balance.sick}</div>
+            </div>
+            <div class="balance-card">
+                Paid Leaves Left
+                <div class="balance-number">${balance.paid}</div>
+            </div>
+        </div>
+        <div class="card" style="margin-top: 20px; text-align: center;">
+            <h3>Leave Statistics</h3>
+            <canvas id="leaveChart" style="max-height: 300px;"></canvas>
+        </div>
+    `;
+
+            // Destroy previous chart instance if it exists before creating a new one
+            if (leaveChartInstance) {
+                leaveChartInstance.destroy();
+            }
+
+            // Render Chart.js Graph
+            const ctx = document.getElementById("leaveChart").getContext("2d");
+
+            // Calculate used leaves (assuming total is 10 for each as seen in backend)
+            const totalCasual = 10;
+            const totalSick = 10;
+            const totalPaid = 10;
+
+            // Disable leave options if their balance is 0
+            document.querySelector("#leaveType option[value='casual']").disabled = balance.casual <= 0;
+            document.querySelector("#leaveType option[value='sick']").disabled = balance.sick <= 0;
+            document.querySelector("#leaveType option[value='paid']").disabled = balance.paid <= 0;
+
+            const usedCasual = totalCasual - balance.casual;
+            const usedSick = totalSick - balance.sick;
+            const usedPaid = totalPaid - balance.paid;
+
+            leaveChartInstance = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: [
+                        "Casual Left", "Casual Used",
+                        "Sick Left", "Sick Used",
+                        "Paid Left", "Paid Used"
+                    ],
+                    datasets: [
+                        {
+                            data: [
+                                balance.casual, usedCasual,
+                                balance.sick, usedSick,
+                                balance.paid, usedPaid
+                            ],
+                            backgroundColor: [
+                                "#16a34a", "#dc2626", // Green/Red for Casual
+                                "#0284c7", "#ea580c", // Blue/Orange for Sick
+                                "#8b5cf6", "#b91c1c"  // Purple/Dark Red for Paid
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function applyLeave() {
+            const type = document.getElementById("leaveType").value;
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const reason = document.getElementById("reason").value;
+            const halfDay = document.getElementById("halfDay").checked;
+
+            if (!startDate || (!halfDay && !endDate)) {
+                showToast("Please select dates", "error");
+                return;
+            }
+
+            const res = await fetch("http://localhost:7000/apply", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ type, startDate, endDate: halfDay ? startDate : endDate, reason, halfDay })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast("Leave applied successfully!");
+                // Clear form
+                document.getElementById("startDate").value = "";
+                document.getElementById("endDate").value = "";
+                document.getElementById("reason").value = "";
+                document.getElementById("halfDay").checked = false;
+                updateDurationPreview();
+            } else {
+                showToast(data.message || "Error applying for leave", "error");
+            }
+
+            loadBalance();
+            loadMyLeaves();
+        }
+
+        async function loadMyLeaves() {
+            try {
+                const res = await fetch("http://localhost:7000/my-leaves", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const leaves = await res.json();
+                const container = document.getElementById("myLeaveHistory");
+
+                if (leaves.length === 0) {
+                    container.innerHTML = "<p>No leave requests found.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+                leaves.sort((a, b) => b.id - a.id).forEach(l => {
+                    const status = l.status.toLowerCase();
+                    let badgeClass = "badge-pending";
+                    if (status === "approved") badgeClass = "badge-approved";
+                    if (status === "declined") badgeClass = "badge-declined";
+                    if (status === "completed") badgeClass = "badge-completed";
+
+                    const div = document.createElement("div");
+                    div.style.borderBottom = "1px solid #eee";
+                    div.style.padding = "10px 0";
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${l.type.toUpperCase()}</strong> (${l.duration} days)<br>
+                                <span style="font-size: 12px; color: #666;">${l.startDate} to ${l.endDate}</span>
+                            </div>
+                            <span class="badge ${badgeClass}">${l.status}</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading leave history:", err);
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const empRes = await fetch("http://localhost:5000/employees", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const leaveRes = await fetch("http://localhost:7000/on-leave", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!empRes.ok || !leaveRes.ok) return;
+
+                const employees = await empRes.json();
+                const onLeaveIds = await leaveRes.json();
+                const container = document.getElementById("employeeList");
+
+                if (employees.length === 0) {
+                    container.innerHTML = "<p>No employees found.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+                employees.forEach(emp => {
+                    const isOnLeave = onLeaveIds.includes(emp.id);
+                    const statusBadge = isOnLeave
+                        ? '<span class="badge badge-declined">On Leave</span>'
+                        : '<span class="badge badge-approved">Active</span>';
+
+                    const div = document.createElement("div");
+                    div.className = "leave-item";
+                    div.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong>${emp.name}</strong>
+                                ${statusBadge}
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: var(--text-muted);">
+                                <div><strong>Email:</strong> ${emp.email}</div>
+                                <div><strong>Contact:</strong> ${emp.contactNo}</div>
+                                <div style="grid-column: span 2;"><strong>Address:</strong> ${emp.address}</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading employees:", err);
+            }
+        }
+
+        async function loadLeaves() {
+            // Fetch total employees
+            let totalEmployees = 0;
+            let employeesList = [];
+            try {
+                const empRes = await fetch("http://localhost:5000/employees", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (empRes.ok) {
+                    employeesList = await empRes.json();
+                    totalEmployees = employeesList.length;
+                }
+            } catch (e) {
+                console.error("Error fetching employees:", e);
+            }
+
+            const res = await fetch("http://localhost:7000/leaves", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const onLeaveRes = await fetch("http://localhost:7000/on-leave", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const leaves = await res.json();
+            const onLeaveIds = await onLeaveRes.json();
+
+            // Render Admin Stats
+            const employeesOnLeaveNames = employeesList
+                .filter(emp => onLeaveIds.includes(emp.id))
+                .map(emp => emp.name);
+
+            const employeesAvailable = totalEmployees - onLeaveIds.length;
+
+            const statsContainer = document.getElementById("adminStats");
+            statsContainer.innerHTML = `
+                <div class="balance-card">
+                    Total Employees
+                    <div class="balance-number">${totalEmployees}</div>
+                </div>
+                <div class="balance-card">
+                    Employees Available
+                    <div class="balance-number" style="color: #16a34a;">${employeesAvailable}</div>
+                </div>
+                <div class="balance-card" ${onLeaveIds.length > 0 ? 'style="background-color: #fef3c7;"' : ''}>
+                    Out Today
+                    <div class="balance-number" style="color: #dc2626;">${onLeaveIds.length}</div>
+                </div>
+            `;
+
+            const container = document.getElementById("leaveList");
+            container.innerHTML = "";
+
+            if (leaves.length === 0) {
+                container.innerHTML = "<p>No leave requests found.</p>";
+                return;
+            }
+
+            leaves.sort((a, b) => b.id - a.id).forEach(l => {
+                const div = document.createElement("div");
+                div.className = "leave-item";
+                div.innerHTML = `
+                <div style="flex: 1;">
+                    <strong>${l.employeeName}</strong> (${l.type.toUpperCase()})<br>
+                    <span style="font-size: 14px; color: var(--text-muted);">${l.startDate} to ${l.endDate}</span><br>
+                    <span style="font-size: 13px;">Reason: ${l.reason}</span><br>
+                    <span style="font-size: 13px;">Duration: ${l.duration} days</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                    <span class="badge badge-${l.status.toLowerCase()}">${l.status}</span>
+                </div>
+            `;
+
+                if (l.status === "pending") {
+                    const actionsDiv = document.createElement("div");
+                    actionsDiv.className = "actions";
+
+                    const approveBtn = document.createElement("button");
+                    approveBtn.className = "approve-btn";
+                    approveBtn.innerText = "Approve";
+                    approveBtn.onclick = async () => {
+                        await fetch(`http://localhost:7000/approve/${l.id}`, {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        showToast(`Leave approved for ${l.employeeName}`);
+                        loadLeaves();
+                        loadEmployees();
+                    };
+
+                    const declineBtn = document.createElement("button");
+                    declineBtn.className = "decline-btn";
+                    declineBtn.innerText = "Decline";
+                    declineBtn.onclick = async () => {
+                        await fetch(`http://localhost:7000/decline/${l.id}`, {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        showToast(`Leave declined for ${l.employeeName}`, "error");
+                        loadLeaves();
+                        loadEmployees();
+                    };
+
+                    actionsDiv.appendChild(approveBtn);
+                    actionsDiv.appendChild(declineBtn);
+                    div.querySelector('div[style*="align-items: flex-end"]').appendChild(actionsDiv);
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        async function checkNotification() {
+
+            const res = await fetch("http://localhost:7000/my-leaves", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const leaves = await res.json();
+
+            const today = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
+
+            const tomorrowString = tomorrow.toISOString().split("T")[0];
+
+            leaves.forEach(l => {
+
+                if (!l.status) return;
+
+                const status = l.status.toLowerCase();
+                const uniqueKey = l.id + "-" + status;
+
+                // ✅ Approved Notification
+                if (status === "approved" && !shownNotifications.has(uniqueKey)) {
+                    showToast(`Your ${l.type} leave has been APPROVED`, "success");
+                    shownNotifications.add(uniqueKey);
+                }
+
+                // ❌ Declined Notification
+                if (status === "declined" && !shownNotifications.has(uniqueKey)) {
+                    showToast(`Your ${l.type} leave has been DECLINED`, "error");
+                    shownNotifications.add(uniqueKey);
+                }
+
+
+                // ⏰ Leave Ending Tomorrow Notification
+                if (
+                    status === "approved" &&
+                    l.endDate === tomorrowString &&
+                    !shownNotifications.has(l.id + "-ending")
+                ) {
+                    showToast(`Your ${l.type} leave ends tomorrow`, "info");
+                    shownNotifications.add(l.id + "-ending");
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

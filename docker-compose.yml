@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "5000:5000"
+    networks:
+      - leave-management
+
+  leave-service:
+    build: ./leave-service
+    ports:
+      - "7000:7000"
+    env_file:
+      - ./leave-service/.env
+    networks:
+      - leave-management
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - auth-service
+      - leave-service
+    networks:
+      - leave-management
+
+networks:
+  leave-management:
+    driver: bridge
