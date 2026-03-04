@@ -74,3 +74,33 @@ note:login credentials for admin and employees (username ,password) are in auth-
 for testing and trial admin login :username- hr1 / hr2 password- admin123 ,
 employee login :username- john/sarah/mike password- emp123 ,
 user can register as a new employee too.
+
+## Deploy on Railway
+
+Create 3 Railway services from the same repo:
+
+1. `auth-service`
+2. `leave-service`
+3. `frontend`
+
+For each service, set the Root Directory:
+
+- `auth-service` -> `auth-service`
+- `leave-service` -> `leave-service`
+- `frontend` -> `frontend`
+
+Set environment variables:
+
+- In `leave-service`: `EMAIL_USER`, `EMAIL_PASS`, optional `APP_TIMEZONE`
+- In `frontend`: `AUTH_SERVICE_URL`, `LEAVE_SERVICE_URL`
+
+How to set frontend URLs:
+
+- Use Railway private networking URLs for the two backend services, for example:
+  - `AUTH_SERVICE_URL=http://<auth-service-private-domain>`
+  - `LEAVE_SERVICE_URL=http://<leave-service-private-domain>`
+
+After deploy:
+
+- Open the public URL of the `frontend` service.
+- Frontend proxies `/auth/*` and `/leave/*` to backend services.

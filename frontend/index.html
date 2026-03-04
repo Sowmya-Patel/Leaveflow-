@@ -521,6 +521,8 @@
     </div>
 
     <script>
+        const AUTH_API_BASE = "/auth";
+        const LEAVE_API_BASE = "/leave";
         let token = "";
         let shownNotifications = new Set();
         let leaveChartInstance = null; // Storing chart globally to enable replacing it
@@ -607,7 +609,7 @@
             const password = document.getElementById("password").value;
             const role = document.getElementById("role").value;
 
-            const res = await fetch("http://localhost:5000/login", {
+            const res = await fetch(`${AUTH_API_BASE}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password, role })
@@ -690,7 +692,7 @@
             }
 
             try {
-                const res = await fetch("http://localhost:5000/register", {
+                const res = await fetch(`${AUTH_API_BASE}/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password, name, email, contactNo, address })
@@ -722,7 +724,7 @@
 
         async function loadProfile() {
             try {
-                const res = await fetch("http://localhost:5000/profile", {
+                const res = await fetch(`${AUTH_API_BASE}/profile`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -738,7 +740,7 @@
         }
 
         async function loadBalance() {
-            const res = await fetch("http://localhost:7000/balance", {
+            const res = await fetch(`${LEAVE_API_BASE}/balance`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
@@ -842,7 +844,7 @@
                 return;
             }
 
-            const res = await fetch("http://localhost:7000/apply", {
+            const res = await fetch(`${LEAVE_API_BASE}/apply`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -871,7 +873,7 @@
 
         async function loadMyLeaves() {
             try {
-                const res = await fetch("http://localhost:7000/my-leaves", {
+                const res = await fetch(`${LEAVE_API_BASE}/my-leaves`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const leaves = await res.json();
@@ -911,11 +913,11 @@
 
         async function loadEmployees() {
             try {
-                const empRes = await fetch("http://localhost:5000/employees", {
+                const empRes = await fetch(`${AUTH_API_BASE}/employees`, {
                     headers: { "Authorization": `Bearer ${token}` },
                     cache: "no-store"
                 });
-                const leaveRes = await fetch("http://localhost:7000/on-leave", {
+                const leaveRes = await fetch(`${LEAVE_API_BASE}/on-leave`, {
                     headers: { "Authorization": `Bearer ${token}` },
                     cache: "no-store"
                 });
@@ -966,7 +968,7 @@
             let totalEmployees = 0;
             let employeesList = [];
             try {
-                const empRes = await fetch("http://localhost:5000/employees", {
+                const empRes = await fetch(`${AUTH_API_BASE}/employees`, {
                     headers: { "Authorization": `Bearer ${token}` },
                     cache: "no-store"
                 });
@@ -978,12 +980,12 @@
                 console.error("Error fetching employees:", e);
             }
 
-            const res = await fetch("http://localhost:7000/leaves", {
+            const res = await fetch(`${LEAVE_API_BASE}/leaves`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 cache: "no-store"
             });
 
-            const onLeaveRes = await fetch("http://localhost:7000/on-leave", {
+            const onLeaveRes = await fetch(`${LEAVE_API_BASE}/on-leave`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 cache: "no-store"
             });
@@ -1045,7 +1047,7 @@
                     approveBtn.className = "approve-btn";
                     approveBtn.innerText = "Approve";
                     approveBtn.onclick = async () => {
-                        const response = await fetch(`http://localhost:7000/approve/${l.id}`, {
+                        const response = await fetch(`${LEAVE_API_BASE}/approve/${l.id}`, {
                             method: "POST",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
@@ -1063,7 +1065,7 @@
                     declineBtn.className = "decline-btn";
                     declineBtn.innerText = "Decline";
                     declineBtn.onclick = async () => {
-                        const response = await fetch(`http://localhost:7000/decline/${l.id}`, {
+                        const response = await fetch(`${LEAVE_API_BASE}/decline/${l.id}`, {
                             method: "POST",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
@@ -1088,7 +1090,7 @@
 
         async function checkNotification() {
 
-            const res = await fetch("http://localhost:7000/my-leaves", {
+            const res = await fetch(`${LEAVE_API_BASE}/my-leaves`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
