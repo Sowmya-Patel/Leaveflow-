@@ -136,8 +136,6 @@ app.get("/employees", verifyToken, (req, res) => {
   res.json(employees);
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Auth Service running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log("Auth Service running on port 5000");
 });
